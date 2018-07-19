@@ -1,5 +1,5 @@
 {
-  "name": "Reactive Docs",
+  "name": "DOODLE-DOCZ",
   "productName": "Reactive Docs",
   "version": "1.0.0",
   "description": "Reactive Docs",
@@ -35,7 +35,7 @@
         ]
       },
       "electronWinstallerConfig": {
-        "name": "DOODLE DOCS"
+        "name": "Reactive Docs"
       },
       "electronInstallerDebian": {},
       "electronInstallerRedhat": {},
@@ -56,17 +56,18 @@
     "draft-js-counter-plugin": "^2.0.1",
     "draft-js-emoji-plugin": "^2.0.1",
     "draft-js-export-html": "^1.2.0",
-    "draft-js-hashtag-plugin": "^2.0.1",
     "draft-js-plugins-editor": "^2.0.4",
     "draft-js-static-toolbar-plugin": "^2.0.1",
     "draft-js-undo-plugin": "^2.0.1",
     "electron-compile": "^6.4.2",
     "electron-devtools-installer": "^2.2.3",
+    "electron-forge": "^5.2.2",
     "electron-squirrel-startup": "^1.0.0",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
     "material-ui": "^0.20.0",
     "moment": "^2.21.0",
+    "nodemon": "^1.18.3",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "react": "^15.6.2",
@@ -85,14 +86,7 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "electron": "^1.8.4",
-    "electron-forge": "^5.1.1",
     "electron-prebuilt-compile": "1.8.3",
-    "eslint": "^3.19.0",
-    "eslint-config-airbnb": "^15.1.0",
-    "eslint-plugin-import": "^2.9.0",
-    "eslint-plugin-jsx-a11y": "^5.1.1",
-    "eslint-plugin-react": "^7.7.0",
-    "nodemon": "^1.17.2",
     "socket.io": "^2.0.4"
   }
 }
