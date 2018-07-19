@@ -38,7 +38,8 @@ userColorArray.forEach( color => {
     backgroundColor: color
   }
   styleMap[ "CURSOR"+color ] = {
-    borderRight: "5px solid "+color
+    borderRight: "solid 10px " +color,
+    backgroundColor: color,
   }
 });
 
@@ -111,16 +112,27 @@ export default class Document extends React.Component {
       showHistory: false,
       modalHistoryIsOn: false,
       title: this.props.docTitle,
-      titleFocus: false
+      titleFocus: false,
+      cursors: {},
     };
 
     // allowing multiple users collaboration
-    this.socket = io( "https://reactive-docs.herokuapp.com/" );
+    this.socket = io( "https://reactive-docs-sv.herokuapp.com/" );
+    //this.socket = io( "http:/localhost:3000");
 
     // update editorState whenever editor changes (including selection)
     this.onChange = (editorState) => {
       let currentContent = editorState.getCurrentContent()
       const currentSelection = editorState.getSelection()
+
+      if (currentSelection.getStartOffset() !== currentSelection.getEndOffset()) {
+      //editorState = RichUtils.toggleInlineStyle(editorState, this.color);
+      //this.previousHighlight = selection;
+      this.socket.emit('cursor', null, this.props.docId);
+    } else {
+      this.socket.emit('cursor', currentSelection, this.props.docId)
+    }
+
       const firstBlock = currentContent.getFirstBlock()
       const lastBlock = currentContent.getLastBlock()
       const allSelection = SelectionState.createEmpty(firstBlock.getKey()).merge({
@@ -135,15 +147,24 @@ export default class Document extends React.Component {
         var userSelection = SelectionState.createWithObj( this.selectionObj[ color ] );
         currentContent = Modifier.removeInlineStyle(currentContent, allSelection, 'HIGHLIGHT'+color);
         //currentContent = Modifier.removeInlineStyle(currentContent, allSelection, 'CURSOR'+color);
+        //currentContent = Modifier.removeInlineStyle(currentContent, allSelection, 'CURSOR'+color);
         // Highlight the User's selection with their Highlight Color
-        if( selectionIsHighlighted( userSelection ) ) currentContent = Modifier.applyInlineStyle(currentContent, userSelection, 'HIGHLIGHT'+color);
+        if( selectionIsHighlighted( userSelection ) ) {
+          currentContent = Modifier.applyInlineStyle(currentContent, userSelection, 'HIGHLIGHT'+color);
+          //currentContent = Modifier.applyInlineStyle(currentContent, userSelection, 'CURSOR'+color);
+        }
         //else currentContent = Modifier.applyInlineStyle(currentContent, userSelection, 'CURSOR'+color);
         editorState = EditorState.createWithContent(currentContent);
+        // editorState = EditorState.forceSelection(editorState, userSelection)
+        //editorState = RichUtils.toggleInlineStyle(editorState, 'CURSOR'+color)
+        
       }
 
-      // focus on editor if user is not focusing on title field
-      if( !this.state.titleFocus ) editorState = EditorState.forceSelection(editorState, currentSelection)
 
+      // focus on editor if user is not focusing on title field
+      
+      if( !this.state.titleFocus ) editorState = EditorState.forceSelection(editorState, currentSelection)
+      
       // save EditorState, then send an update event the server
       this.setState({editorState}, () => {
         if( this.editorToken ) { this.editorToken = false; return; }
@@ -181,11 +202,11 @@ export default class Document extends React.Component {
       // if another user is editing the document, server sends the latest editorState
       if(typeof ack.content !== 'string') {
         this.setState({
-          editorState:EditorState.createWithContent(convertFromRaw(ack.content))
+          editorState: EditorState.createWithContent(convertFromRaw(ack.content))
         })
       } else {
         // if no one else is editing the document, query the last saved version of the document from database
-        fetch("https://reactive-docs.herokuapp.com/doc/" + this.props.docId)
+        fetch("https://reactive-docs-sv.herokuapp.com/doc/" + this.props.docId)
         .then(res => res.json())
         .then(res => {
           if (res.success) {
@@ -226,7 +247,7 @@ export default class Document extends React.Component {
     // server indicates one user to autosave every 30 seconds (behind the scene)
     this.socket.on( 'autosave', () => {
       var convertedContent = convertToRaw(this.state.editorState.getCurrentContent() );
-      fetch("https://reactive-docs.herokuapp.com/doc/autosave/" + this.props.docId, {
+      fetch("https://reactive-docs-sv.herokuapp.com/doc/autosave/" + this.props.docId, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json"
@@ -243,12 +264,43 @@ export default class Document extends React.Component {
         }
       })
     });
+
+    this.socket.on('newCursor', ({incomingSelectionObj, color}) => {
+      if (!incomingSelectionObj) {
+        return this.setState({cursors: Object.assign({}, this.state.cursors, {[color]: null})})
+      }
+
+      const ogEditorState = this.state.editorState;
+
+      const incomingSelectionState = ogEditorState.getSelection().merge(incomingSelectionObj)
+
+      const temporaryEditorState = EditorState.forceSelection(ogEditorState, incomingSelectionState);
+
+      this.setState({editorState: temporaryEditorState}, () => {
+        const winSel = window.getSelection();
+        let range;
+        let top, left, bottom;
+        if(winSel) {
+          range = winSel.getRangeAt(0);
+        }
+        if (range.getClientRects()[0]) {
+          top = range.getClientRects()[0].top;
+          left = range.getClientRects()[0].left;
+          bottom = range.getClientRects()[0].bottom;
+          this.setState({
+            editorState: ogEditorState,
+            cursors: Object.assign({}, this.state.cursors, {[color]: {top, left, height: bottom-top}})
+          });
+        }
+        
+      });
+    });
   }
 
   // manually saving a document / adding a new version in document history
   saveDocument() {
     var convertedContent = convertToRaw(this.state.editorState.getCurrentContent() );
-    fetch("https://reactive-docs.herokuapp.com/doc/" + this.props.docId, {
+    fetch("https://reactive-docs-sv.herokuapp.com/doc/" + this.props.docId, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -346,6 +398,16 @@ export default class Document extends React.Component {
       };
       return (
         <div className = "container">
+          {Object.keys(this.state.cursors).map(color => {
+            const cursor = this.state.cursors[color];
+            return cursor ? <div key={color} style={{
+                backgroundColor: color,
+                width: '4px',
+                height: this.state.cursors[color].height,
+                position: 'absolute',
+                top: this.state.cursors[color].top,
+                left: this.state.cursors[color].left }} /> : null;
+          })}
           <div style={{display: 'flex', justifyContent: 'center'}}>
             <input type='text' style={{marginTop: '15px', borderRadius: '5px', textAlign: 'center', color: 'indigo', fontSize: '32px', marginBottom: '20px'}} 
                    onBlur={(e) => this.setState({titleFocus: false})}
@@ -362,7 +424,7 @@ export default class Document extends React.Component {
           </div>
 
           <div className='textContainer' style={{border: 'solid 1px black', padding: "0 20px", minHeight: "500px"}} onClick={this.state.editorState.focus}>
-            <div id="toolbar" style={{display: 'flex', justifyContent: 'flex-start', marginBottom: "20px", borderBottom: '1px solid black', flexWrap: "wrap"}}>
+            <div id="toolbar" style={{display: 'flex', justifyContent: 'center', marginTop: '10px', paddingBottom: "10px", marginBottom: '10px', borderBottom: '1px solid black', flexWrap: "wrap"}}>
               <div className="dropdown">
                 <button className="btn btn-default" style={{minHeight: '100%'}}>Font  <span className="caret"></span></button>
                 <div className="dropdown-content">

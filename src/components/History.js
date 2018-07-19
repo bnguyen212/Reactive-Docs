@@ -9,7 +9,7 @@ export default class History extends React.Component {
 
   // get all previously saved versions of document, including latest autosave
   componentWillMount() {
-    fetch("https://reactive-docs.herokuapp.com/doc/" + this.props.docId)
+    fetch("https://reactive-docs-sv.herokuapp.com/doc/" + this.props.docId)
     .then(res => res.json())
     .then(res => {
       if (!res.success) {

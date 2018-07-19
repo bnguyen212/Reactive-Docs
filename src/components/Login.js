@@ -3,12 +3,12 @@ import React from 'react';
 export default class Login extends React.Component {
   constructor(props) {
     super(props);
-    this.state={username: '', password: ''}
+    this.state={username: 'Brian', password: '123456'}
   }
 
   login(e, username, password) {
     e.preventDefault();
-    fetch("https://reactive-docs.herokuapp.com/login", {
+    fetch("https://reactive-docs-sv.herokuapp.com/login", {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -27,7 +27,7 @@ export default class Login extends React.Component {
         //go to main page with list of documents (if any)
         this.props.redirect('Main')
       } else {
-        alert(res.error)
+        alert("Login failed")
       }
     })
   }
