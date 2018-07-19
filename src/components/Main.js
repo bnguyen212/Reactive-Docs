@@ -5,7 +5,8 @@ import Modal from 'react-modal';
 export default class Main extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {userId: localStorage.getItem('userId'), 
+    this.state = {
+      userId: localStorage.getItem('userId'), 
       username: localStorage.getItem('username'),
       docList: [],
       modalNewIsOpen: false,
@@ -31,8 +32,15 @@ export default class Main extends React.Component {
 
   // query all documents user owns & has permission to collaborate on
   componentWillMount() {
-    fetch("https://reactive-docs.herokuapp.com/user/" + this.state.userId)
-    .then(res => res.json())
+    fetch("https://reactive-docs-sv.herokuapp.com/user/" + this.state.userId)
+    .then(res => {
+      if (res.status === 200) {
+        return res.json()
+      }
+      else {
+        return []
+      }
+    })
     .then(res => {
       if (res.success) {
         this.setState({docList: res.docList})
@@ -49,7 +57,7 @@ export default class Main extends React.Component {
       alert('Document password is missing!');
       throw new Error('Password is missing!')
     }
-    fetch("https://reactive-docs.herokuapp.com/doc/new", {
+    fetch("https://reactive-docs-sv.herokuapp.com/doc/new", {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -82,7 +90,7 @@ export default class Main extends React.Component {
       alert('Document password is missing!');
       throw new Error('Password is missing!')
     }
-    fetch("https://reactive-docs.herokuapp.com/doc/add", {
+    fetch("https://reactive-docs-sv.herokuapp.com/doc/add", {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -109,7 +117,7 @@ export default class Main extends React.Component {
   }
 
   removeDocument() {
-    fetch("https://reactive-docs.herokuapp.com/doc/remove", {
+    fetch("https://reactive-docs-sv.herokuapp.com/doc/remove", {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
@@ -140,6 +148,10 @@ export default class Main extends React.Component {
     this.props.redirect('Login');
   }
 
+  refresh() {
+    this.componentWillMount();
+  }
+
   render() {
     const customStyles = {
       content : {
@@ -159,6 +171,7 @@ export default class Main extends React.Component {
         <div style={{display: 'flex', justifyContent: 'space-around', marginBottom: "40px"}}>
           <button className="btn btn-success btn-lg" onClick={() => this.toggleModal('New')}>Create New Document</button>
           <button className="btn btn-warning btn-lg" onClick={() => this.toggleModal('Existing')}>Add Existing Document</button>
+          <button className="btn btn-primary btn-lg" onClick={() => this.refresh()}>Refresh</button>
           <button className="btn btn-danger btn-lg" onClick={() => this.logout()}>Logout</button>
         </div>
 
@@ -262,7 +275,7 @@ export default class Main extends React.Component {
         <div className="list-group"  style={{display: 'flex', justifyContent: 'center', flexDirection: 'column', maxWidth: "70%", margin: "0 auto"}}>
           {this.state.docList.map((doc, i) => (
 
-            <a key={i} href="#" className="list-group-item flex-column align-items-start"
+            <a key={doc._id} href="#" className="list-group-item flex-column align-items-start"
             style={{borderRadius: "10px", marginBottom: "10px", border: "1px solid black", display: 'flex'}}>
               <div style={{minWidth: "80%", maxWidth: "80%", display: 'flex'}} onClick={(e) => this.props.redirect("Document", doc._id, doc.title)}>
                 <div style={{display: 'flex', alignItems: "center"}}>

@@ -8,7 +8,7 @@ export default class Register extends React.Component {
 
   register(e, username, password) {
     e.preventDefault();
-    fetch("https://reactive-docs.herokuapp.com/register", {
+    fetch("https://reactive-docs-sv.herokuapp.com/register", {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
