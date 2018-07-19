@@ -37,10 +37,10 @@ userColorArray.forEach( color => {
   styleMap[ "HIGHLIGHT"+color ] = {
     backgroundColor: color
   }
-  styleMap[ "CURSOR"+color ] = {
-    borderRight: "solid 10px " +color,
-    backgroundColor: color,
-  }
+  // styleMap[ "CURSOR"+color ] = {
+  //   borderRight: "solid 10px " +color,
+  //   backgroundColor: color,
+  // }
 });
 
 var fontSizeArray = [8,10,12,14,16,18,20,24,28,32,36,48,72];
@@ -118,7 +118,6 @@ export default class Document extends React.Component {
 
     // allowing multiple users collaboration
     this.socket = io( "https://reactive-docs-sv.herokuapp.com/" );
-    //this.socket = io( "http:/localhost:3000");
 
     // update editorState whenever editor changes (including selection)
     this.onChange = (editorState) => {
@@ -126,12 +125,10 @@ export default class Document extends React.Component {
       const currentSelection = editorState.getSelection()
 
       if (currentSelection.getStartOffset() !== currentSelection.getEndOffset()) {
-      //editorState = RichUtils.toggleInlineStyle(editorState, this.color);
-      //this.previousHighlight = selection;
-      this.socket.emit('cursor', null, this.props.docId);
-    } else {
-      this.socket.emit('cursor', currentSelection, this.props.docId)
-    }
+        this.socket.emit('cursor', null, this.props.docId);
+      } else {
+        this.socket.emit('cursor', currentSelection, this.props.docId)
+      }
 
       const firstBlock = currentContent.getFirstBlock()
       const lastBlock = currentContent.getLastBlock()
@@ -147,11 +144,10 @@ export default class Document extends React.Component {
         var userSelection = SelectionState.createWithObj( this.selectionObj[ color ] );
         currentContent = Modifier.removeInlineStyle(currentContent, allSelection, 'HIGHLIGHT'+color);
         //currentContent = Modifier.removeInlineStyle(currentContent, allSelection, 'CURSOR'+color);
-        //currentContent = Modifier.removeInlineStyle(currentContent, allSelection, 'CURSOR'+color);
+
         // Highlight the User's selection with their Highlight Color
         if( selectionIsHighlighted( userSelection ) ) {
           currentContent = Modifier.applyInlineStyle(currentContent, userSelection, 'HIGHLIGHT'+color);
-          //currentContent = Modifier.applyInlineStyle(currentContent, userSelection, 'CURSOR'+color);
         }
         //else currentContent = Modifier.applyInlineStyle(currentContent, userSelection, 'CURSOR'+color);
         editorState = EditorState.createWithContent(currentContent);
@@ -160,9 +156,7 @@ export default class Document extends React.Component {
         
       }
 
-
       // focus on editor if user is not focusing on title field
-      
       if( !this.state.titleFocus ) editorState = EditorState.forceSelection(editorState, currentSelection)
       
       // save EditorState, then send an update event the server
@@ -265,15 +259,14 @@ export default class Document extends React.Component {
       })
     });
 
+    // update location of other users' cursor
     this.socket.on('newCursor', ({incomingSelectionObj, color}) => {
       if (!incomingSelectionObj) {
         return this.setState({cursors: Object.assign({}, this.state.cursors, {[color]: null})})
       }
 
       const ogEditorState = this.state.editorState;
-
       const incomingSelectionState = ogEditorState.getSelection().merge(incomingSelectionObj)
-
       const temporaryEditorState = EditorState.forceSelection(ogEditorState, incomingSelectionState);
 
       this.setState({editorState: temporaryEditorState}, () => {
@@ -347,7 +340,7 @@ export default class Document extends React.Component {
 
   // exit document
   componentWillUnmount() {
-    this.socket.emit('closeDoc', {docId: this.props.docId, userColor: this.color});
+    this.socket.emit('closeDoc', { docId: this.props.docId, userColor: this.color });
     this.socket.off('updateDoc');
   }
 
@@ -376,7 +369,7 @@ export default class Document extends React.Component {
     this.socket.emit('editTitle', dataObj );
   }
 
-//rendering function
+  //rendering function
   render(){
     if (this.state.editorState === null) {
       return (

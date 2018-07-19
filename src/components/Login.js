@@ -3,7 +3,7 @@ import React from 'react';
 export default class Login extends React.Component {
   constructor(props) {
     super(props);
-    this.state={username: 'Brian', password: '123456'}
+    this.state={username: '', password: ''}
   }
 
   login(e, username, password) {
@@ -34,24 +34,61 @@ export default class Login extends React.Component {
 
   render() {
     return (
-      <div style={{display: 'flex', justifyContent: 'center', flexDirection: 'column'}}>
-        <h1 style={{textAlign: 'center', color: 'blue', marginBottom: '100px'}}>Welcome to Reactive Docs!</h1>
-        <form style={{minWidth: "50%", margin: "0 auto"}}>
+      <div style={styles.container}>
+        <h1 style={styles.header}>Welcome to Reactive Docs!</h1>
+        <form style={styles.form}>
           <div className="form-group">
             <label>Username: </label>
-            <input type="email" className="form-control" placeholder="Username" value={this.state.username} onChange={(e) => this.setState({username: e.target.value})}/>
+            <input type="email"
+                   className="form-control"
+                   placeholder="Username"
+                   value={this.state.username}
+                   onChange={ e => this.setState({ username: e.target.value }) } />
           </div>
           <div className="form-group">
             <label >Password: </label>
-            <input type="password" className="form-control" placeholder="Password" value={this.state.password} onChange={(e) => this.setState({password: e.target.value})}/>
+            <input type="password"
+                   className="form-control"
+                   placeholder="Password"
+                   value={this.state.password}
+                   onChange={ e => this.setState({ password: e.target.value }) } />
           </div>
-          <button style={{minWidth: "100%"}} type="submit" className="btn btn-primary" onClick={e => this.login(e, this.state.username, this.state.password)}>Login</button>
+          <button style={styles.loginBtn}
+                  type="submit"
+                  className="btn btn-primary"
+                  onClick={ e => this.login(e, this.state.username, this.state.password) }>Login</button>
         </form>
 
-        <div style={{display: 'flex', justifyContent: 'space-around', marginTop: '100px'}}>
-          <button onClick={() => this.props.redirect('Register')} className="btn btn-danger btn-lg">Registration</button>
+        <div style={styles.registerBtn}>
+          <button onClick={() => this.props.redirect('Register')}
+                  className="btn btn-danger btn-lg">Registration</button>
         </div>
       </div>
     )
+  }
+}
+
+const styles = {
+  container: {
+    display: 'flex',
+    justifyContent: 'center',
+    flexDirection: 'column'
+  },
+  header: {
+    textAlign: 'center',
+    color: 'blue',
+    marginBottom: '100px'
+  },
+  form: {
+    minWidth: "50%",
+    margin: "0 auto"
+  },
+  loginBtn: {
+    minWidth: "100%"
+  },
+  registerBtn: {
+    display: 'flex',
+    justifyContent: 'space-around',
+    marginTop: '100px'
   }
 }
