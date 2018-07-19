@@ -1,6 +1,6 @@
 {
-  "name": "DOODLE-DOCZ",
-  "productName": "DOODLE-DOCZ",
+  "name": "Reactive Docs",
+  "productName": "Reactive Docs",
   "version": "1.0.0",
   "description": "Reactive Docs",
   "main": "src/index.js",
@@ -9,13 +9,9 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --cache --color --ext .jsx,.js src",
-    "backend-dev": "nodemon server/index.js --exec babel-node --presets es2015,stage-2",
-    "backend-build": "babel server -d server-dist --presets es2015,stage-2",
-    "backend-serve": "node server-dist/index.js"
   },
   "keywords": [],
-  "author": "franky",
+  "author": "Franky, Brian",
   "license": "MIT",
   "config": {
     "forge": {
