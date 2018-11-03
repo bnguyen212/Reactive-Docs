@@ -6,7 +6,7 @@ export default class Main extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      userId: localStorage.getItem('userId'), 
+      userId: localStorage.getItem('userId'),
       username: localStorage.getItem('username'),
       docList: [],
       modalNewIsOpen: false,
@@ -159,10 +159,10 @@ export default class Main extends React.Component {
 
 
         <div style={styles.buttons}>
-          <button className="btn btn-success btn-lg" onClick={() => this.toggleModal('New')}>Create New Document</button>
-          <button className="btn btn-warning btn-lg" onClick={() => this.toggleModal('Existing')}>Add Existing Document</button>
-          <button className="btn btn-primary btn-lg" onClick={() => this.refresh()}>Refresh</button>
-          <button className="btn btn-danger btn-lg" onClick={() => this.logout()}>Logout</button>
+          <button className="btn btn-success" onClick={() => this.toggleModal('New')}>Create New Document</button>
+          <button className="btn btn-warning" onClick={() => this.toggleModal('Existing')}>Add Existing Document</button>
+          <button className="btn btn-primary" onClick={() => this.refresh()}>Refresh</button>
+          <button className="btn btn-danger" onClick={() => this.logout()}>Logout</button>
         </div>
 
         <Modal
@@ -304,8 +304,8 @@ export default class Main extends React.Component {
                 </div>
               </div>
               <div style={styles.docBtnDiv}>
-                <button className="btn btn-warning" 
-                        style={styles.docBtn} 
+                <button className="btn btn-warning"
+                        style={styles.docBtn}
                         onClick={() => {this.toggleModal('Share'); this.setState({docId: doc._id})}}>Share</button>
                 <button className="btn btn-danger"
                         style={styles.docBtn}
@@ -387,6 +387,3 @@ const styles = {
     maxWidth: "70px",
     margin: "5px 5px"}
 }
-
-
-
